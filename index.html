@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="cs" class="dark h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test: Vlastní kapitál a dlouhodobé závazky (OA Účetnictví)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+        }
+        /* Style for scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        
+        /* Print styles */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            .print-container {
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+            }
+        }
+        .print-only {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-full flex flex-col font-sans antialiased selection:bg-sky-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-slate-800/80 backdrop-blur border-b border-slate-700/60 sticky top-0 z-30 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <!-- App Title -->
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-sky-600/20 text-sky-400 rounded-xl border border-sky-500/30">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-white leading-tight">Účetnictví OA: Vlastní kapitál</h1>
+                    <p class="text-xs text-slate-400">Interaktivní testovací prostředí • 40 otázek</p>
+                </div>
+            </div>
+
+            <!-- Header Controls -->
+            <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+                <!-- Sound Toggle -->
+                <button id="soundToggleBtn" onclick="toggleSound()" class="p-2 rounded-lg bg-slate-700/60 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-600/50 transition flex items-center gap-1.5 text-xs font-medium" title="Přepnout zvukové efekty">
+                    <span id="soundIcon">🔊</span>
+                    <span class="hidden md:inline">Zvuk</span>
+                </button>
+
+                <!-- Filter Errors Toggle -->
+                <button id="filterErrorsBtn" onclick="toggleFilterErrors()" class="p-2 rounded-lg bg-slate-700/60 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-600/50 transition flex items-center gap-1.5 text-xs font-medium" title="Zobrazit pouze chybně zodpovězené otázky">
+                    <span>⚠️</span>
+                    <span class="hidden md:inline">Filtr chyb</span>
+                    <span id="errorBadgeCount" class="ml-1 bg-rose-500/30 text-rose-300 px-1.5 py-0.5 rounded-full text-[10px] hidden">0</span>
+                </button>
+
+                <!-- Shuffle Questions -->
+                <button onclick="shuffleQuestionsAction()" class="p-2 rounded-lg bg-slate-700/60 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-600/50 transition flex items-center gap-1.5 text-xs font-medium" title="Proházet pořadí otázek">
+                    <span>🔀</span>
+                    <span class="hidden md:inline">Proházet</span>
+                </button>
+
+                <!-- Restart Test -->
+                <button onclick="restartTest()" class="p-2 rounded-lg bg-slate-700/60 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-600/50 transition flex items-center gap-1.5 text-xs font-medium" title="Resetovat celý test">
+                    <span>🔄</span>
+                    <span class="hidden md:inline">Restart</span>
+                </button>
+
+                <!-- Print Protocol Modal Trigger -->
+                <button onclick="openPrintModal()" class="px-3 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-medium text-xs shadow-lg shadow-sky-600/20 border border-sky-400/30 transition flex items-center gap-1.5">
+                    <span>🖨️</span>
+                    <span>Tiskový protokol</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 no-print">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <!-- Left Sidebar Dashboard -->
+            <div class="lg:col-span-4 space-y-6">
+                
+                <!-- Score & Progress Card -->
+                <div class="bg-slate-800/60 border border-slate-700/70 rounded-2xl p-5 shadow-xl backdrop-blur">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-xs uppercase tracking-wider font-semibold text-slate-400">Celkový stav</span>
+                        <!-- Grade Badge -->
+                        <div id="gradeBadge" class="px-3 py-1 rounded-xl font-bold text-sm bg-slate-700 text-slate-300 border border-slate-600">
+                            Známka: -
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="space-y-2 mb-5">
+                        <div class="flex justify-between text-xs text-slate-300 font-medium">
+                            <span>Průběh řešení</span>
+                            <span id="progressText">0 z 40 zodpovězeno</span>
+                        </div>
+                        <div class="w-full h-2.5 bg-slate-900 rounded-full overflow-hidden p-0.5 border border-slate-700">
+                            <div id="progressBar" class="h-full bg-gradient-to-r from-sky-500 to-emerald-400 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Counters Grid -->
+                    <div class="grid grid-cols-3 gap-3 text-center">
+                        <div class="bg-slate-900/60 border border-emerald-500/20 rounded-xl p-3">
+                            <span class="block text-2xl font-bold text-emerald-400" id="correctCount">0</span>
+                            <span class="text-[11px] text-slate-400 font-medium">Správně</span>
+                        </div>
+                        <div class="bg-slate-900/60 border border-rose-500/20 rounded-xl p-3">
+                            <span class="block text-2xl font-bold text-rose-400" id="wrongCount">0</span>
+                            <span class="text-[11px] text-slate-400 font-medium">Chybně</span>
+                        </div>
+                        <div class="bg-slate-900/60 border border-sky-500/20 rounded-xl p-3">
+                            <span class="block text-2xl font-bold text-sky-400" id="accuracyPercent">0 %</span>
+                            <span class="text-[11px] text-slate-400 font-medium">Úspěšnost</span>
+                        </div>
+                    </div>
+
+                    <!-- OA Grading Scale Legend -->
+                    <div class="mt-4 pt-4 border-t border-slate-700/60 text-[11px] text-slate-400 space-y-1">
+                        <div class="font-semibold text-slate-300 mb-1">Stupnice hodnocení OA:</div>
+                        <div class="grid grid-cols-5 gap-1 text-center font-mono text-[10px]">
+                            <span class="bg-emerald-950/60 text-emerald-300 border border-emerald-800/40 rounded p-1">1: 90-100%</span>
+                            <span class="bg-teal-950/60 text-teal-300 border border-teal-800/40 rounded p-1">2: 75-89%</span>
+                            <span class="bg-amber-950/60 text-amber-300 border border-amber-800/40 rounded p-1">3: 60-74%</span>
+                            <span class="bg-orange-950/60 text-orange-300 border border-orange-800/40 rounded p-1">4: 45-59%</span>
+                            <span class="bg-rose-950/60 text-rose-300 border border-rose-800/40 rounded p-1">5: &lt;45%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Questions Navigation Map Grid -->
+                <div class="bg-slate-800/60 border border-slate-700/70 rounded-2xl p-5 shadow-xl backdrop-blur">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-xs uppercase tracking-wider font-semibold text-slate-400">Mapa otázek</h3>
+                        <span class="text-[11px] text-slate-400">Kliknutím přejdete</span>
+                    </div>
+                    <div id="questionMapGrid" class="grid grid-cols-8 gap-2">
+                        <!-- 40 buttons will be rendered dynamically here -->
+                    </div>
+                </div>
+
+                <!-- Shortcut Legend Card -->
+                <div class="bg-slate-800/40 border border-slate-700/40 rounded-2xl p-4 text-xs text-slate-400 space-y-1.5">
+                    <div class="font-semibold text-slate-300 flex items-center gap-1.5">
+                        <span>⌨️</span> Klávesové zkratky:
+                    </div>
+                    <div class="flex justify-between"><span>Výběr možnosti:</span> <span class="font-mono text-slate-200">A, B, C, D / 1, 2, 3, 4</span></div>
+                    <div class="flex justify-between"><span>Navigace:</span> <span class="font-mono text-slate-200">← / → / Enter</span></div>
+                </div>
+
+            </div>
+
+            <!-- Right Main Area: Active Question Card -->
+            <div class="lg:col-span-8 space-y-6">
+                
+                <!-- Active Question Container -->
+                <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur relative overflow-hidden">
+                    
+                    <!-- Question Header & Badges -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-700/60">
+                        <span id="questionCategoryBadge" class="px-3 py-1 bg-sky-500/10 text-sky-400 border border-sky-500/30 rounded-full text-xs font-medium">
+                            Kategorie
+                        </span>
+                        <div class="text-sm font-semibold text-slate-300">
+                            Otázka <span id="currentQuestionNum" class="text-sky-400 font-bold">1</span> z <span id="totalQuestionsCount">40</span>
+                        </div>
+                    </div>
+
+                    <!-- Question Text -->
+                    <h2 id="questionText" class="text-lg sm:text-xl font-bold text-white leading-relaxed mb-6">
+                        Načítám text otázky...
+                    </h2>
+
+                    <!-- Answer Options (A, B, C, D) -->
+                    <div id="optionsContainer" class="space-y-3 mb-6">
+                        <!-- 4 Option buttons rendered dynamically -->
+                    </div>
+
+                    <!-- Explanation Card (Visible after answering) -->
+                    <div id="explanationContainer" class="hidden transition-all duration-300 mt-6 pt-6 border-t border-slate-700/80">
+                        <div id="explanationBox" class="p-5 rounded-xl border space-y-3">
+                            <div id="explanationHeader" class="flex items-center gap-2 font-bold text-sm">
+                                <!-- Dynamic icon & status text -->
+                            </div>
+                            <div id="explanationText" class="text-sm text-slate-200 leading-relaxed">
+                                <!-- Detailed accounting logic -->
+                            </div>
+                            <div class="mt-3 p-3 bg-slate-900/60 border border-slate-700/60 rounded-lg text-xs text-slate-300 italic">
+                                <span class="font-semibold text-sky-400 not-italic">Citace ze studijního materiálu:</span>
+                                <div id="citationText" class="mt-1 text-slate-300"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Controls Bottom Bar -->
+                    <div class="flex items-center justify-between gap-4 mt-8 pt-4 border-t border-slate-700/60">
+                        <button id="prevBtn" onclick="prevQuestion()" class="px-4 py-2.5 rounded-xl bg-slate-700/60 hover:bg-slate-700 text-slate-200 font-medium text-sm transition border border-slate-600/50 flex items-center gap-2">
+                            <span>←</span>
+                            <span>Předchozí</span>
+                        </button>
+
+                        <div id="questionCounterIndicator" class="text-xs text-slate-400 font-medium hidden sm:block">
+                            Použijte klávesy <kbd class="px-1.5 py-0.5 bg-slate-900 border border-slate-700 rounded text-slate-300">1-4</kbd> nebo <kbd class="px-1.5 py-0.5 bg-slate-900 border border-slate-700 rounded text-slate-300">A-D</kbd>
+                        </div>
+
+                        <button id="nextBtn" onclick="nextQuestion()" class="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-sm transition shadow-lg shadow-sky-600/20 border border-sky-400/30 flex items-center gap-2">
+                            <span>Další</span>
+                            <span>→</span>
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-4 px-4 text-center text-xs text-slate-500 no-print mt-auto">
+        Obchodní akademie Účetnictví • 3. ročník • Téma 5: Vlastní kapitál a dlouhodobé závazky (Účtová třída 4)
+    </footer>
+
+    <!-- Print Modal Dialog -->
+    <div id="printModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden no-print">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <span>🖨️</span> Generování tiskového protokolu
+                </h3>
+                <button onclick="closePrintModal()" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Jméno a příjmení studenta:</label>
+                    <input type="text" id="studentNameInput" placeholder="Napište své jméno..." class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:border-sky-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Třída / Skupina:</label>
+                    <input type="text" id="studentClassInput" value="3. OA" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:border-sky-500">
+                </div>
+
+                <div class="p-4 bg-slate-900/80 border border-slate-700/60 rounded-xl text-xs space-y-2">
+                    <div class="flex justify-between text-slate-300"><span>Zodpovězeno otázek:</span> <span id="modalSolvedCount" class="font-bold">0 / 40</span></div>
+                    <div class="flex justify-between text-slate-300"><span>Správných odpovědí:</span> <span id="modalCorrectCount" class="font-bold text-emerald-400">0</span></div>
+                    <div class="flex justify-between text-slate-300"><span>Celková úspěšnost:</span> <span id="modalPercent" class="font-bold text-sky-400">0 %</span></div>
+                    <div class="flex justify-between text-slate-300"><span>Výsledná známka OA:</span> <span id="modalGrade" class="font-bold text-amber-400">-</span></div>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-3 border-t border-slate-700">
+                <button onclick="closePrintModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl text-xs font-semibold transition">
+                    Zrušit
+                </button>
+                <button onclick="triggerPrint()" class="px-5 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-sky-600/30 flex items-center gap-1.5">
+                    <span>🖨️</span> Vytisknout / Uložit PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Printable Report Container (Only visible during window.print) -->
+    <div id="printableReport" class="print-only print-container p-8 text-black bg-white font-sans">
+        <!-- Header -->
+        <div class="border-b-2 border-black pb-4 mb-6 flex justify-between items-start">
+            <div>
+                <h1 class="text-2xl font-bold uppercase tracking-wide">Výsledkový protokol z testu</h1>
+                <h2 class="text-lg font-semibold text-gray-700">Předmět: Účetnictví (OA 3. ročník)</h2>
+                <p class="text-sm text-gray-600">Téma: 5. Vlastní kapitál a dlouhodobé závazky (Účtová třída 4)</p>
+            </div>
+            <div class="text-right text-sm">
+                <p><strong>Datum:</strong> <span id="printDate"></span></p>
+                <p><strong>Student:</strong> <span id="printStudentName" class="font-bold"></span></p>
+                <p><strong>Třída:</strong> <span id="printStudentClass"></span></p>
+            </div>
+        </div>
+
+        <!-- Grade Summary Box -->
+        <div class="border-2 border-black p-4 mb-6 flex justify-between items-center bg-gray-50">
+            <div>
+                <p class="text-sm">Celkový počet otázek: <strong>40</strong></p>
+                <p class="text-sm">Správně zodpovězeno: <strong id="printCorrect">0</strong></p>
+                <p class="text-sm">Chybně zodpovězeno: <strong id="printWrong">0</strong></p>
+            </div>
+            <div class="text-center">
+                <span class="text-xs uppercase block text-gray-600">Celková úspěšnost</span>
+                <span id="printPercent" class="text-3xl font-extrabold">0 %</span>
+            </div>
+            <div class="text-center border-l-2 border-gray-300 pl-6">
+                <span class="text-xs uppercase block text-gray-600">Hodnocení OA</span>
+                <span id="printGrade" class="text-4xl font-black">1</span>
+            </div>
+        </div>
+
+        <!-- Detailed Breakdown Table -->
+        <h3 class="font-bold text-base uppercase mb-3 border-b border-gray-400 pb-1">Detailní přehled otázek a odpovědí</h3>
+        <table class="w-full text-xs text-left border-collapse mb-6">
+            <thead>
+                <tr class="bg-gray-200 border-b border-black">
+                    <th class="p-2 border border-gray-400 w-8">#</th>
+                    <th class="p-2 border border-gray-400">Otázka</th>
+                    <th class="p-2 border border-gray-400 w-32">Vaše odpověď</th>
+                    <th class="p-2 border border-gray-400 w-32">Správná odpověď</th>
+                    <th class="p-2 border border-gray-400 w-16 text-center">Stav</th>
+                </tr>
+            </thead>
+            <tbody id="printTableBody">
+                <!-- Dynamically generated rows -->
+            </tbody>
+        </table>
+
+        <!-- Signatures -->
+        <div class="mt-12 flex justify-between text-xs pt-8 border-t border-gray-300">
+            <div>Podpis studenta: ...........................................</div>
+            <div>Podpis vyučujícího: ...........................................</div>
+        </div>
+    </div>
+
+
+    <!-- APPLICATION LOGIC & DATA SCRIPT -->
+    <script>
+        /* ==========================================================================
+           1. QUESTION DATABASE (40 QUESTIONS - 100% COVERAGE OF MATERIAL 5)
+           Answer keys are evenly distributed: Exactly 10x A, 10x B, 10x C, 10x D.
+           Distractors are length-balanced to prevent guessing by length.
+           ========================================================================== */
+        
+        const rawQuestions = [
+            // 1. Vlastní kapitál (A - CZ, účtová třída 4) -> Correct: A (index 0)
+            {
+                category: "Základní pojmy",
+                question: "Jak je v účetnictví definován vlastní kapitál podniku a do jaké účtové třídy je zařazen?",
+                options: [
+                    "Představuje vlastní zdroje krytí majetku (čistý majetek = Aktiva - Cizí zdroje) a účtuje se v účtové třídě 4.",
+                    "Vyjadřuje celkový objem dlouhodobých i krátkodobých dluhů podniku vůči všem externím věřitelům v účtové třídě 3.",
+                    "Představuje výhradně souhrn peněžních prostředků uložených na bankovních účtech a v pokladně v účtové třídě 2.",
+                    "Vyjadřuje celkový roční obrat firmy z prodeje zboží a vlastních výrobků zachycený v nákladové účtové třídě 5."
+                ],
+                correct: 0, // A
+                explanation: "Vlastní kapitál vyjadřuje čistý majetek podniku (Aktiva mínus Cizí zdroje) a spadá do účtové třídy 4 (rozvahové účty pasivní).",
+                citation: "Kapitálové účty (vlastní zdroje krytí majetku) – jak velké množství majetku je ve vlastnictví podniku … čistý majetek podniku (A – CZ). Účtová třída 4 – rozvahové účty pasivní."
+            },
+
+            // 2. Účtové skupiny vlastního kapitálu (41, 42, 43, 49) -> Correct: B (index 1)
+            {
+                category: "Účtové skupiny T4",
+                question: "Která z následujících možností správně uvádí účtové skupiny vlastního kapitálu v účtové třídě 4?",
+                options: [
+                    "Skupiny 41 (rezervy), 42 (bankovní úvěry), 43 (závazky) a 49 (odložené daňové pohledávky a závazky).",
+                    "Skupiny 41 (základní kapitál a kapitálové fondy), 42 (fondy ze zisku a VH minulých let), 43 a 49.",
+                    "Skupiny 41 (pohledávky za upsaný kapitál), 42 (dodavatelé), 43 (odběratelé) a 49 (zaměstnanci podniku).",
+                    "Skupiny 41 (dlouhodobý hmotný majetek), 42 (peněžní prostředky), 43 (náklady) a 49 (výnosy podniku)."
+                ],
+                correct: 1, // B
+                explanation: "Vlastní kapitál v T4 tvoří účtové skupiny 41 (ZK a kapitálové fondy), 42 (fondy ze zisku a VH minulých let), 43 (VH ve schvalovacím řízení) a 49 (účet individuálního podnikatele).",
+                citation: "Účtová skupina 41 – základní kapitál, kapitálové fondy; Účtová skupina 42 – fondy ze zisku, výsledek hospodaření minulých let; Účtová skupina 43 – zisk/ztráta; Účtová skupina 49 – účet individuálního podnikatele."
+            },
+
+            // 3. Účtové skupiny dlouhodobých závazků v T4 (45, 46, 47, 48) -> Correct: C (index 2)
+            {
+                category: "Dlouhodobé závazky",
+                question: "Které účtové skupiny v účtové třídě 4 představují cizí zdroje podniku (dlouhodobé závazky) se splatností nad 1 rok?",
+                options: [
+                    "Účtové skupiny 41 (základní kapitál), 42 (fondy ze zisku) a 43 (výsledek hospodaření předchozího roku).",
+                    "Účtové skupiny 31 (pohledávky z obchodních vztahů), 32 (závazky) a 33 (zúčtování se zaměstnanci).",
+                    "Účtové skupiny 45 (rezervy), 46 (dlouhodobé bankovní úvěry), 47 (ostatní závazky) a 48 (odložená daň).",
+                    "Účtové skupiny 21 (pokladna), 22 (bankovní účty), 23 (krátkodobé úvěry) a 26 (převody mezi účty)."
+                ],
+                correct: 2, // C
+                explanation: "Dlouhodobé cizí zdroje s dobou splatnosti nad 1 rok v účtové třídě 4 jsou zahrnuty ve skupinách 45, 46, 47 a 48.",
+                citation: "Dlouhodobé závazky (cizí zdroje) > 1 rok: Účtová skupina 45 – rezervy, Účtová skupina 46 – bankovní úvěry s dobou splatnosti > 1 rok, Účtová skupina 47 – ostatní dlouhodobé závazky, Účtová skupina 48 – odložený daňový závazek a pohledávka."
+            },
+
+            // 4. Základní kapitál - podstata, souhrn vkladů, zápis do OR -> Correct: D (index 3)
+            {
+                category: "Základní kapitál",
+                question: "Co je to základní kapitál podniku a jaký je jeho právní a účetní charakter?",
+                options: [
+                    "Částka rezervního fondu určená výhradně k úhradě nečekaných provozních ztrát a pokut udělených státními orgány.",
+                    "Souhrn všech poskytnutých provozních i investičních bankovních úvěrů se splatností kratší než jeden kalendářní rok.",
+                    "Suma nerozděleného zisku z předchozích účetních období, o které dosud valná hromada nerozhodla žádným usnesením.",
+                    "Souhrn všech peněžních a nepeněžních vkladů společníků do podniku, jehož výše se povinně zapisuje do obchodního rejstříku."
+                ],
+                correct: 3, // D
+                explanation: "Základní kapitál tvoří souhrn všech peněžních i nepeněžních vkladů vkládaných společníky a jeho výše je zapsána v obchodním rejstříku (OR).",
+                citation: "Základní kapitál: Součást vlastního kapitálu podniku. Souhrn všech peněžních a nepeněžních vkladů do podniku. Výše základního kapitálu se zapisuje do obchodního rejstříku."
+            },
+
+            // 5. Základní účty ZK (411 - základní kapitál, 419 - změna základního kapitálu) -> Correct: A (index 0)
+            {
+                category: "Základní kapitál",
+                question: "Které dva základní syntetické účty se používají pro účtování zapsaného základního kapitálu a jeho přechodných změn?",
+                options: [
+                    "Účet 411 – Základní kapitál pro zapsanou výši v OR a účet 419 – Změny základního kapitálu pro stav před zápisem.",
+                    "Účet 421 – Rezervní fond pro zapsanou výši v OR a účet 428 – Nerozdělený zisk minulých let pro probíhající změny.",
+                    "Účet 353 – Pohledávky za upsaný kapitál a účet 379 – Jiné závazky pro přechodný stav před zapsáním do rejstříku.",
+                    "Účet 701 – Počáteční účet rozvážný a účet 702 – Konečný účet rozvážný pro zachycení všech průběžných změn ZK."
+                ],
+                correct: 0, // A
+                explanation: "Oficiálně zapsaný ZK v OR se účtuje na účtu 411. Změny ZK před zápisem do obchodního rejstříku se zachycují na přechodném účtu 419.",
+                citation: "Základní účty: 411 – základní kapitál, 419 – změna základního kapitálu."
+            },
+
+            // 6. Minimální výše ZK podle ZOK: a.s. (2 000 000 Kč) a s.r.o. (1 Kč) -> Correct: B (index 1)
+            {
+                category: "Legislativa ZOK",
+                question: "Jaká je minimální zákonná výše základního kapitálu pro akciovou společnost (a.s.) a společnost s ručením omezeným (s.r.o.) dle ZOK?",
+                options: [
+                    "Pro akciovou společnost činí minimum 100 000 Kč a pro společnost s ručením omezeným je stanoven minimální ZK 200 000 Kč.",
+                    "Pro akciovou společnost je stanoven minimální ZK 2 000 000 Kč, zatímco pro s.r.o. činí zákonné minimum pouze 1 Kč.",
+                    "Pro akciovou společnost je stanoven ZK 5 000 000 Kč a pro společnost s ručením omezeným je povinné minimum 100 000 Kč.",
+                    "Pro akciovou společnost ani pro společnost s ručením omezeným legislativa nestanovuje vůbec žádnou minimální hranici ZK."
+                ],
+                correct: 1, // B
+                explanation: "Zákon o obchodních korporacích stanovuje pro a.s. minimální základní kapitál 2 000 000 Kč, zatímco u s.r.o. je zákonné minimum určeno ve výši 1 Kč.",
+                citation: "Povinnost vytvářet základní kapitál (zákon o obchodních korporacích): Kapitálové společnosti - Akciová společnost – 2 000 000,- Kč; Společnost s ručením omezeným – 1,- Kč."
+            },
+
+            // 7. Minimální výše ZK: Družstvo, k.s. a FO podnikatel (ručí celým majetkem) -> Correct: C (index 2)
+            {
+                category: "Právní formy",
+                question: "Jak je legislativně upravena povinnost tvorby základního kapitálu u družstva, komanditní společnosti a fyzické osoby?",
+                options: [
+                    "Družstvo musí mít ZK alespoň 1 000 000 Kč, komanditní společnost 500 000 Kč a fyzická osoba povinně tvoří ZK 50 000 Kč.",
+                    "Všechny tři uvedené právní subjekty mají ze zákona povinnost vytvářet základní kapitál v jednotné výši přesně 100 000 Kč.",
+                    "Družstvo má minimální výši ZK určenu ve stanovách, k.s. nemá zákonné minimum a fyzická osoba ZK nevytváří a ručí celým majetkem.",
+                    "Ani jeden ze zmíněných subjektů podle zákona neexistuje a nemohou tedy v České republice provádět podnikatelskou činnost."
+                ],
+                correct: 2, // C
+                explanation: "Družstvo určuje ZK ve stanovách, u k.s. není minimum stanovené zákony a FO podnikatel ZK nevytváří – za své závazky ručí celým svým majetkem.",
+                citation: "Družstvo – minimální výše není stanovena, je určena ve stanovách. Komanditní společnost – minimální výše ZK není stanovena. Podnikatel fyzická osoba – nemusí vytvářet základní kapitál, za závazky firmy dluží celým svým majetkem."
+            },
+
+            // 8. Vznik společnosti dnem zápisu do OR, zahajovací rozvaha a otevření knih -> Correct: D (index 3)
+            {
+                category: "Vznik společnosti",
+                question: "Kterým okamžikem právně i účetně vzniká obchodní společnost a jaké účetní kroky s tímto dnem bezprostředně souvisí?",
+                options: [
+                    "Vzniká již podpisem zakladatelské smlouvy u notáře, přičemž do jednoho měsíce musí sestavit roční účetní závěrku.",
+                    "Vzniká schválením živnostenského oprávnění na úřadě, kdy zároveň otevírá nákladové a výnosové účty v účtové třídě 5 a 6.",
+                    "Vzniká podepsáním nájemní smlouvy na sídlo podniku, kdy sestavuje rozvahu ke konci kalendářního nebo hospodářského roku.",
+                    "Vzniká dnem zápisu do obchodního rejstříku, ke kterému sestavuje zahajovací rozvahu a otevírá své účetní knihy."
+                ],
+                correct: 3, // D
+                explanation: "Obchodní společnost oficiálně vzniká ke dni zápisu do obchodního rejstříku. K tomuto dni sestavuje zahajovací rozvahu a otevírá účetní knihy.",
+                citation: "Založení a vznik společnosti: Den zápisu společnosti do obchodního rejstříku – vzniká společnost (sestavuje zahajovací rozvahu a otevírá účetní knihy)."
+            },
+
+            // 9. Zahajovací rozvaha - struktura A (vložený majetek + 353) a P (411 + fondy) -> Correct: A (index 0)
+            {
+                category: "Zahajovací rozvaha",
+                question: "Jaké položky tvoří typickou strukturu aktiv a pasiv v zahajovací rozvaze nově vznikající obchodní společnosti?",
+                options: [
+                    "Aktiva tvoří vložený majetek a pohledávka za upsaný nesplacený kapitál (353), pasiva zapsaný základní kapitál (411), popř. fondy.",
+                    "Aktiva tvoří nerozdělený zisk z minulých let a rezervní fond, pasiva tvoří bankovní úvěry a závazky vůči dodavatelům.",
+                    "Aktiva tvoří pouze náklady příštích období a příjmy příštích období, pasiva tvoří výdaje příštích období a výnosy příštích období.",
+                    "Aktiva tvoří tržby z prodeje zboží a výrobků, pasiva tvoří provozní a finanční náklady podniku za celé účetní období."
+                ],
+                correct: 0, // A
+                explanation: "Zahajovací rozvaha obsahuje v aktivách vložený majetek (např. stavby, BÚ) a pohledávku na účtu 353, v pasivech zapsaný ZK na účtu 411.",
+                citation: "Zahajovací rozvaha: Aktiva – vložený majetek do podniku, pohledávka za upsaný nesplacený kapitál; Pasiva – základní kapitál zapsaný do OR, popř. další položky – např. dobrovolný rezervní fond."
+            },
+
+            // 10. Otevření knih - zapsaný ZK (701 / 411) -> Correct: B (index 1)
+            {
+                category: "Otevření knih",
+                question: "Jakým účetním souvztažným zápisem se při otevření účetních knih účtuje zapsaný základní kapitál?",
+                options: [
+                    "Účtuje se souvztažným účetním zápisem na stranu Má dáti účtu 411 a na stranu Dal účtu 701 – Počáteční účet rozvážný.",
+                    "Účtuje se souvztažným účetním zápisem na stranu Má dáti účtu 701 a na stranu Dal účtu 411 – Základní kapitál.",
+                    "Účtuje se souvztažným účetním zápisem na stranu Má dáti účtu 221 a na stranu Dal účtu 353 – Pohledávky za upsaný ZK.",
+                    "Účtuje se souvztažným účetním zápisem na stranu Má dáti účtu 419 a na stranu Dal účtu 411 – Základní kapitál."
+                ],
+                correct: 1, // B
+                explanation: "Otevření pasivního účtu 411 – Základní kapitál z počáteční rozvahy se provede účetním předpisem 701 / 411.",
+                citation: "Otevření účetních knih: Zápis 5 000 000 Kč na účet 411 - základní kapitál na stranu Dal se provádí oproti strance MD účtu 701 - počáteční účet rozvážný (VÚD - základní kapitál: 701 / 411)."
+            },
+
+            // 11. Otevření knih - aktivní účty (221, 021, 353 / 701) -> Correct: C (index 2)
+            {
+                category: "Otevření knih",
+                question: "Jak se při otevření knih účtují počáteční stavy aktivních účtů jako jsou stavby (021), bankovní účet (221) nebo pohledávka za upsaný kapitál (353)?",
+                options: [
+                    "Účtují se na stranu Dal příslušných aktivních účtů (021, 221, 353) souvztažně se stranou Má dáti účtu 411 – Základní kapitál.",
+                    "Účtují se na stranu Má dáti účtu 701 – Počáteční účet rozvážný souvztažně se stranou Dal aktivních účtů (021, 221, 353).",
+                    "Účtují se na stranu Má dáti příslušných aktivních účtů (021, 221, 353) se souvztažným zápisem na stranu Dal účtu 701.",
+                    "Aktivní účty se při otevření knih vůbec neúčtují oproti účtu 701, ale převádí se přímo na účet 710 – Účet zisků a ztrát."
+                ],
+                correct: 2, // C
+                explanation: "Počáteční stavy aktivních účtů se účtují na stranu MD daného majetkového účtu (021, 221, 353...) oproti strance Dal účtu 701.",
+                citation: "Otevření účetních knih: Účty aktivní (221 - BÚ, 021 - stavby, 353 - pohledávky za upsaný ZK) se otevírají na straně MD oproti straně Dal účtu 701 – počáteční účet rozvážný."
+            },
+
+            // 12. Zvýšení ZK - rozhoduje valná hromada, do zápisu do OR účet 419 -> Correct: D (index 3)
+            {
+                category: "Zvýšení ZK",
+                question: "Kdo rozhoduje o zvýšení základního kapitálu a na kterém účtu se zvýšení v mezidobí do zápisu do obchodního rejstříku zachycuje?",
+                options: [
+                    "Rozhoduje hlavní účetní společnosti a přechodný stav do zápisu se účtuje přímo na nákladový účet 568 – Ostatní finanční náklady.",
+                    "Rozhoduje auditor společnosti a přechodné zvýšení se do zápisu do rejstříku účtuje na rozvahový účet 252 – Vlastní akcie.",
+                    "Rozhoduje finanční úřad a do okamžiku oficiálního zápisu do obchodního rejstříku se zachycuje na výnosový účet 668.",
+                    "Rozhoduje valná hromada společnosti a do okamžiku oficiálního zápisu do OR se účtuje na účet 419 – Změny základního kapitálu."
+                ],
+                correct: 3, // D
+                explanation: "O zvýšení ZK rozhoduje valná hromada. Podkladem pro účtování na účet 411 je až zápis do OR; do té doby se používá přechodný účet 419.",
+                citation: "Zvýšení základního kapitálu: Rozhoduje valná hromada společnosti. Dnem zápisu do OR (podklad pro účtování). Do doby zápisu do OR – účet 419 – změny základního kapitálu."
+            },
+
+            // 13. Zvýšení ZK vklady společníků - ZK se zvýší, celkový VK se zvýší -> Correct: A (index 0)
+            {
+                category: "Zvýšení ZK",
+                question: "Jaký vliv má zvýšení základního kapitálu prostřednictvím nových vkladů stávajících nebo nových společníků na základní a celkový vlastní kapitál?",
+                options: [
+                    "Zapsaný základní kapitál na účtu 411 se zvýší a zároveň dochází k reálnému zvýšení celkového vlastního kapitálu podniku.",
+                    "Zapsaný základní kapitál se sice zvýší, avšak celkový objem vlastního kapitálu zůstává zcela nezměněný z důvodu kompenzace.",
+                    "Zapsaný základní kapitál na účtu 411 klesá a celkový vlastní kapitál firmy z důvodu nového vkladu společníků výrazně klesá.",
+                    "Tato operace má vliv výhradně na cizí zdroje podniku a na vlastní ani základní kapitál nemá vůbec žádný dopad."
+                ],
+                correct: 0, // A
+                explanation: "Při vkladu nových prostředků společníky přitéká nový majetek, čímž se zvyšuje jak základní kapitál, tak celkový vlastní kapitál podniku.",
+                citation: "Vklad společníků (stávajících, nových) – základní kapitál se zvýší -> zvýšení vlastního kapitálu (VK)."
+            },
+
+            // 14. Účtování vkladů společníků: 353 / 419, 221 / 353, 022 / 353, 419 / 411 -> Correct: B (index 1)
+            {
+                category: "Účtování zvýšení ZK",
+                question: "Jak zaúčtujete zvýšení ZK vklady společníků (rozhodnutí, splacení na BÚ/majetkem, zápis do OR)?",
+                options: [
+                    "1. Zápis do OR (411/419), 2. Splacení vkladu (353/221), 3. Rozhodnutí valné hromady o zvýšení základního kapitálu (419/353).",
+                    "1. Rozhodnutí o zvýšení ZK (353/419), 2. Splacení vkladu na BÚ či majetkem (221 nebo 022 / 353), 3. Zápis do OR (419/411).",
+                    "1. Vklad automobilu (022/411), 2. Předpis vkladu (419/353), 3. Úhrada z bankovního účtu na rozvahový účet 701 (221/701).",
+                    "1. Předpis ážia (412/353), 2. Převod na zisk (431/419), 3. Vyúčtování nesplacené části na výnosový účet (353/668)."
+                ],
+                correct: 1, // B
+                explanation: "Postup: 1. VÚD předpis závazku společníka upsat kapitál (353/419), 2. VBÚ/VÚD splacení vkladu (221 či 022 / 353), 3. VÚD zápis zvýšení do OR (419/411).",
+                citation: "VÚD - rozhodnutí o zvýšení ZK (353 / 419), VBÚ - splacený vklad na BÚ (221 / 353), VÚD - vložení automobilu (022 / 353), VÚD - zápis zvýšení ZK do OR (419 / 411)."
+            },
+
+            // 15. Zvýšení ZK z vlastních zdrojů (zapsaný ZK se zvýší, celkový VK se NEZVÝŠÍ) -> Correct: C (index 2)
+            {
+                category: "Zvýšení ZK",
+                question: "Jaký je ekonomický dopad zvýšení základního kapitálu přeskupením z vlastních zdrojů podniku (např. z nerozděleného zisku či fondů)?",
+                options: [
+                    "Zapsaný základní kapitál se zvýší a zároveň dochází ke stejně velkému nárůstu celkového vlastního kapitálu podniku.",
+                    "Zapsaný základní kapitál i celkový vlastní kapitál se v důsledku tohoto vnitřního účetního přesunu sníží.",
+                    "Zapsaný základní kapitál na účtu 411 se zvýší, avšak celkový objem vlastního kapitálu firmy se vůbec nezmění.",
+                    "Dochází k okamžitému nárůstu cizích zdrojů a snížení aktivního bankovního účtu o celou převedenou částku."
+                ],
+                correct: 2, // C
+                explanation: "Jde pouze o vnitřní přesun mezi položkami vlastního kapitálu (z účtů 42., 428 či 431 na účet 411). Základní kapitál se zvýší, ale celkový vlastní kapitál zůstává stejný.",
+                citation: "Přesun z vlastních zdrojů podniku – základní kapitál se zvýší -> vlastní kapitál (VK) se nezvýší (např. z nerozděleného zisku minulých let, z fondů ze zisku, z VH k rozdělení)."
+            },
+
+            // 16. Účtování zvýšení ZK z fondů a zisku: 42. / 419, 428 / 419, po zápise 419 / 411 -> Correct: D (index 3)
+            {
+                category: "Účtování zvýšení ZK",
+                question: "Které účetní souvztažnosti vyjadřují zvýšení ZK z fondů ze zisku (42.) nebo nerozděleného zisku (428) před zápisem a po zápisu do OR?",
+                options: [
+                    "Před zápisem do OR účtujeme 411 / 42., a po zápisu do obchodního rejstříku účtujeme převod předpisem 419 / 353.",
+                    "Před zápisem do OR účtujeme 353 / 411, a po zápisu do obchodního rejstříku účtujeme vyúčtování předpisem 221 / 419.",
+                    "Před zápisem do OR účtujeme 431 / 411, a po zápisu do obchodního rejstříku účtujeme úhradu z BÚ předpisem 379 / 221.",
+                    "Před zápisem do OR účtujeme 42. či 428 / 419, a po oficiálním zápisu do rejstříku se provede zúčtování předpisem 419 / 411."
+                ],
+                correct: 3, // D
+                explanation: "Převod z fondů či zisku před zápisem: 42. nebo 428 / 419. Po zápisu zvýšení ZK do OR se provede přeúčtování z přechodného účtu: 419 / 411.",
+                citation: "1. VÚD - zvýšení ZK z fondů (42. / 419), 2. VÚD - ze zisku min. let (428 / 419), 3. VÚD - z VH (431 / 419), 4. VÚD - zápis zvýšení ZK do OR (419 / 411)."
+            },
+
+            // 17. Snížení ZK - rozhoduje valná hromada (negativní signál), nelze pod zákonné minimum (2 mil. u a.s.) -> Correct: A (index 0)
+            {
+                category: "Snížení ZK",
+                question: "Jaká pravidla a omezení platí pro proces snížení základního kapitálu v obchodní korporaci?",
+                options: [
+                    "Rozhoduje valná hromada (vnímáno trhem negativně) a ZK nelze snížit pod zákonné minimum (např. 2 mil. Kč u a.s.).",
+                    "Rozhoduje výhradně auditory jmenovaný znalec a ZK lze snížit na zcela libovolnou zápornou částku bez omezení.",
+                    "Rozhoduje finanční úřad při kontrole a snížení ZK se provádí automatickým odpisem do provozních nákladů podniku.",
+                    "O snížení rozhoduje odborová organizace a základní kapitál nesmí po snížení překročit hranici 100 000 Kč."
+                ],
+                correct: 0, // A
+                explanation: "O snížení ZK rozhoduje valná hromada. Pro trh a věřitele jde o negativní signál. Zákon o obchodních korporacích zakazuje snížení pod zákonné minimum (např. 2 000 000 Kč u a.s.).",
+                citation: "Snížení ZK: Rozhoduje valná hromada – negativní signál pro věřitele. Nelze ho snížit pod minimální hranici, stanovenou zákonem o obchodních korporacích (např. 2 000 000,- Kč u a. s.)."
+            },
+
+            // 18. Snížení ZK - snížení nominální hodnoty akcií (úhrada ztráty: 419 / 431, zápis do OR: 411 / 419) -> Correct: B (index 1)
+            {
+                category: "Snížení ZK",
+                question: "Jak se účtuje snížení základního kapitálu z důvodu úhrady kumulované ztráty snížením nominální hodnoty akcií?",
+                options: [
+                    "Předpis snížení na úhradu ztráty se účtuje 431 / 411 a po oficiálním zápisu do obchodního rejstříku 419 / 221.",
+                    "VÚD na předpis snížení na úhradu ztráty se účtuje 419 / 431 a po oficiálním zápisu do rejstříku se účtuje 411 / 419.",
+                    "Předpis snížení na úhradu ztráty se účtuje 252 / 419 a po oficiálním zápisu do obchodního rejstříku 411 / 353.",
+                    "Předpis snížení na úhradu ztráty se účtuje 568 / 411 a po oficiálním zápisu do obchodního rejstříku 701 / 419."
+                ],
+                correct: 1, // B
+                explanation: "Úhrada ztráty snížením nominální hodnoty akcií: Předpis snížení ZK na úhradu ztráty 419 / 431, po zápisu snížení ZK do OR 411 / 419.",
+                citation: "Snížení nominální hodnoty akcií: VÚD – snížení ZK (419 / 431), VÚD – zápis snížení ZK do OR (411 / 419)."
+            },
+
+            // 19. Snížení ZK - stažení akcií z oběhu (vykoupení: 252 / 221, zničení: 419 / 252, zápis do OR: 411 / 419) -> Correct: C (index 2)
+            {
+                category: "Snížení ZK",
+                question: "Jaké je účetní zachycení postupu při snížení základního kapitálu stažením a následným zničením vlastních akcií?",
+                options: [
+                    "Vykoupení vlastních akcií účtujeme 411 / 221, rozhodnutí o zničení 252 / 419 a zápis snížení do OR předpisem 419 / 431.",
+                    "Vykoupení vlastních akcií účtujeme 353 / 221, rozhodnutí o zničení 411 / 252 a zápis snížení do OR předpisem 419 / 701.",
+                    "Vykoupení vlastních akcií účtujeme 252 / 221, rozhodnutí o zničení akcií 419 / 252 a zápis snížení do OR 411 / 419.",
+                    "Vykoupení vlastních akcií účtujeme 568 / 221, rozhodnutí o zničení 419 / 568 a zápis snížení do OR předpisem 411 / 668."
+                ],
+                correct: 2, // C
+                explanation: "Postup stažení akcií: 1. VBÚ vykoupení vlastních akcií na účet 252 (252 / 221), 2. VÚD snížení ZK zničením akcií (419 / 252), 3. VÚD zápis snížení ZK do OR (411 / 419).",
+                citation: "Stažení akcií z oběhu: VBÚ – vykoupení vlastních akcií (252 / 221), VÚD – snížení ZK (likvidace akcií) (419 / 252), VÚD – zápis snížení ZK do OR (411 / 419)."
+            },
+
+            // 20. Stažení akcií z oběhu - lhůta pro ponechání (do 18 měsíců od nákupu) -> Correct: D (index 3)
+            {
+                category: "Snížení ZK",
+                question: "Jak dlouho si může společnost dle právních předpisů nejdéle ponechat vykoupené vlastní akcie, než je musí prodat nebo zničit?",
+                options: [
+                    "Vykoupené vlastní akcie si společnost musí zničit nebo prodat hned následující kalendářní den po jejich vykoupení.",
+                    "Vykoupené vlastní akcie si společnost může bez časového omezení ponechat na majetkovém účtu libovolně dlouho.",
+                    "Vykoupené akcie si společnost může ponechat maximálně po dobu 30 dnů od okamžiku jejich vykoupení z oběhu.",
+                    "Vykoupené vlastní akcie si může podnik ponechat v držení nejdéle do 18 měsíců od jejich nákupu."
+                ],
+                correct: 3, // D
+                explanation: "Při stažení akcií z oběhu si společnost vykoupené vlastní akcie může ponechat do 18 měsíců od nákupu; po této lhůtě je musí buď prodat, nebo zničit.",
+                citation: "Akcie si může podnik ponechat do 18 měsíců od nákupu, poté je musí buď prodat nebo zničit."
+            },
+
+            // 21. Snížení ZK - nevydání nesplacených akcií (419 / 353, 419 / 379, 411 / 419, vrácení peněz: 379 / 221) -> Correct: A (index 0)
+            {
+                category: "Snížení ZK",
+                question: "Jak se účtuje snížení ZK z důvodu nevydání nesplacených akcií a navrácení již splacené části akcionářům?",
+                options: [
+                    "Nesplacená část 419 / 353, splacená část 419 / 379, zápis do OR 411 / 419 a vrácení peněz akcionářům z BÚ 379 / 221.",
+                    "Nesplacená část 353 / 419, splacená část 379 / 419, zápis do OR 419 / 411 a vrácení peněz z BÚ předpisem 221 / 379.",
+                    "Nesplacená část 411 / 353, splacená část 411 / 379, zápis do OR 419 / 411 a vrácení peněz z BÚ předpisem 221 / 419.",
+                    "Nesplacená část 568 / 353, splacená část 568 / 379, zápis do OR 701 / 419 a vrácení peněz z BÚ předpisem 379 / 701."
+                ],
+                correct: 0, // A
+                explanation: "Snížení ZK nevydáním nesplacených akcií: Nesplacená část 419 / 353, splacená část 419 / 379, zápis snížení ZK do OR 411 / 419 a navrácení peněz 379 / 221.",
+                citation: "Nevydání nesplacených akcií: VÚD – snížení ZK: Nesplacená část (419 / 353), Splacená část ZK (419 / 379); VÚD – zápis snížení ZK do OR (411 / 419); VBÚ – vrácení peněz akcionářům (379 / 221)."
+            },
+
+            // 22. Ážio (účet 412) - není součástí ZK, zvyšuje VK, emisní kurz > jmenovitá hodnota, vkladové ážio u s.r.o. -> Correct: B (index 1)
+            {
+                category: "Ážio",
+                question: "Co vyjadřuje účet 412 – Ážio, jak vzniká a jaký má vliv na celkový vlastní kapitál společnosti?",
+                options: [
+                    "Je přímou součástí základního kapitálu na účtu 411 a představuje rozdíl mezi daňovou a účetní zůstatkovou cenou.",
+                    "Není součástí ZK, zvyšuje VK a tvoří přebytek emisního kurzu nad jmenovitou hodnotou akcií nebo vkladové ážio u s.r.o.",
+                    "Je dlouhodobým cizím zdrojem podniku a představuje úrok placený komerční bance za poskytnutý investiční úvěr.",
+                    "Jedná se o přechodný pasivní účet používaný výhradně při uzávěrkových pracích k časovému rozlišení výnosů."
+                ],
+                correct: 1, // B
+                explanation: "Ážio (účet 412) není součástí základního kapitálu, ale zvyšuje vlastní kapitál. Vniká, pokud emisní kurz akcií převyšuje jejich jmenovitou hodnotu, nebo jako vkladové ážio u s.r.o.",
+                citation: "Ážio – účet 412: Není součástí základního kapitálu, zvyšuje vlastní kapitál. Vydání nových akcií u a. s. … emisní kurz > jmenovitá hodnota akcie. Vkladové ážio – u s. r. o."
+            },
+
+            // 23. Účtování ážia: 353 / 419 (jmenovitá), 353 / 412 (ážio), splacení na BÚ: 221 / 353 -> Correct: C (index 2)
+            {
+                category: "Ážio",
+                question: "Akciová společnost vydává nové akcie s emisním kurzem vyšším než jmenovitá hodnota. Jak se zaúčtuje úpis jmenovité hodnoty, ážio a splacení na BÚ?",
+                options: [
+                    "Jmenovitá hodnota 419 / 353, ážio 412 / 353 a splacení akcií na bankovní účet předpisem 353 / 221.",
+                    "Jmenovitá hodnota 411 / 419, ážio 413 / 353 a splacení akcií na bankovní účet předpisem 701 / 221.",
+                    "Jmenovitá hodnota 353 / 419, ážio 353 / 412 a splacení celkového emisního kurzu na BÚ předpisem 221 / 353.",
+                    "Jmenovitá hodnota 568 / 419, ážio 668 / 412 a splacení akcií na bankovní účet předpisem 221 / 668."
+                ],
+                correct: 2, // C
+                explanation: "Úpis ZK v jmenovité hodnotě: 353 / 419, vkladové/emisní ážio: 353 / 412, celková úhrada na BÚ: 221 / 353.",
+                citation: "Účtování ážia: VÚD - rozhodnutí o zvýšení ZK v jmenovité hodnotě (353 / 419), VÚD - ážio (353 / 412), VBÚ - splacení akcií (221 / 353)."
+            },
+
+            // 24. Účet 413 - Ostatní kapitálové fondy (příplatky mimo ZK v s.r.o., přebytky neodepisovaného DHM) -> Correct: D (index 3)
+            {
+                category: "Kapitálové fondy",
+                question: "K čemu slouží účet 413 – Ostatní kapitálové fondy a jaké typické operace se na něm zachycují?",
+                options: [
+                    "Slouží výhradně ke sledování vytvořeného zisku po zdanění určeného ke schválení valnou hromadou v novém roce.",
+                    "Zachycují se na něm krátkodobé bankovní úvěry a přijaté zálohy od odběratelů se splatností do jednoho roku.",
+                    "Slouží výhradně k účtování povinných přídělů do zákonného rezervního fondu na úhradu budoucích provozních ztrát.",
+                    "Slouží k zachycení dobrovolných příplatků společníků mimo základní kapitál a inventarizačních přebytků neodepisovaného DHM."
+                ],
+                correct: 3, // D
+                explanation: "Účet 413 zachycuje příplatky společníků mimo ZK v s.r.o. a inventarizační přebytky neodepisovaného dlouhodobého hmotného majetku (např. pozemků, uměleckých děl).",
+                citation: "Kapitálové fondy: Účet 413 – ostatní kapitálové fondy. Peněžité a nepeněžité vklady společníků v s. r. o. (příplatky mimo ZK). Inventarizační přebytky neodepisovaného DHM – pozemků, uměleckých děl …"
+            },
+
+            // 25. Účtování přebytků neodepisovaného DHM (pozemky, umělecká díla): 022, 031, 032 / 413 -> Correct: A (index 0)
+            {
+                category: "Kapitálové fondy",
+                question: "Jakým účetním předpisem se zaúčtuje inventarizační přebytek neodepisovaného dlouhodobého hmotného majetku (např. pozemků či uměleckých děl)?",
+                options: [
+                    "Na stranu Má dáti majetkových účtů (031 – Pozemky, 032 – Umělecká díla) se souvztažným zápisem na stranu Dal účtu 413.",
+                    "Na stranu Má dáti účtu 413 se souvztažným zápisem na stranu Dal majetkových účtů (031 – Pozemky, 032 – Umělecká díla).",
+                    "Na stranu Má dáti majetkových účtů (031, 032) se souvztažným zápisem na stranu Dal výnosového účtu 668 – Ostatní finanční výnosy.",
+                    "Na stranu Má dáti účtu 568 se souvztažným zápisem na stranu Dal rozvahového účtu 411 – Základní kapitál."
+                ],
+                correct: 0, // A
+                explanation: "Přebytek neodepisovaného DHM zvyšuje majetek na MD účtů účtové skupiny 03 (031, 032) a účtuje se ve prospěch účtu 413 – Ostatní kapitálové fondy (031, 032 / 413).",
+                citation: "Inventarizační přebytky neodepisovaného DHM – pozemků, uměleckých děl … Účtování: 022, 031, 032 / 413."
+            },
+
+            // 26. Fondy ze zisku (skupina 42) - pasivní účty vlastních zdrojů, stanovený účel -> Correct: B (index 1)
+            {
+                category: "Fondy ze zisku",
+                question: "Jak charakterizujeme fondy ze zisku účtované v účtové skupině 42 a jakou mají majetkovou a účetní povahu?",
+                options: [
+                    "Jedná se o aktivní majetkové účty sloužící výhradně k evidenci peněžních prostředků v hotovosti v pokladně podniku.",
+                    "Jedná se o pasivní účty vlastních zdrojů financování, které mají stanovený účel použití a tvoří se ze zisku po zdanění.",
+                    "Jedná se o závazkové účty vůči státnímu rozpočtu představující povinnost odvést daň z přidané hodnoty.",
+                    "Jedná se o přechodné účty časového rozlišení nákladů a výnosů bez vazby na vlastní kapitál podniku."
+                ],
+                correct: 1, // B
+                explanation: "Fondy ze zisku (účtová skupina 42) představují pasivní účty vlastních zdrojů financování se stanoveným účelem použití.",
+                citation: "Fondy ze zisku: Vlastní zdroj financování, se stanoveným účelem použití -> pasivní účty (účtová skupina 42)."
+            },
+
+            // 27. Rezervní fond (účet 421) - dříve povinný pro a.s., dnes dobrovolný -> Correct: C (index 2)
+            {
+                category: "Fondy ze zisku",
+                question: "Jaká je souvislost mezi účtem 421 – Rezervní fond a aktuální právní úpravou v zákoně o obchodních korporacích?",
+                options: [
+                    "Rezervní fond je dnes povinný pro všechny typy společností bez výjimky ve výši minimálně 50 % základního kapitálu.",
+                    "Rezervní fond byl zrušen a na účtu 421 se dnes nesmí účtovat žádné účetní operace pod pokutou Ministerstva financí.",
+                    "Dříve byl rezervní fond ze zákona povinný pro akciové společnosti, avšak dnes je jeho vytvoření plně dobrovolné.",
+                    "Rezervní fond musejí ze zákona povinně vytvářet pouze fyzické osoby podnikající podle živnostenského zákona."
+                ],
+                correct: 2, // C
+                explanation: "Dříve zákon (obchodní zákoník) ukládal akciovým společnostem povinnost tvořit rezervní fond pro krytí ztráty. Dnes je tvorba rezervního fondu dobrovolná.",
+                citation: "Rezervní fond (421): Dříve – a. s. měly povinnost vytvářet rezervní fond pro krytí ztráty (obchodní zákoník). Dnes – jeho vytvoření je dobrovolné."
+            },
+
+            // 28. Statutární fondy (účet 423) - stanovami/společenskou smlouvou, sociální fond (rekreace, kultura, sport) -> Correct: D (index 3)
+            {
+                category: "Fondy ze zisku",
+                question: "Kdo určuje tvorbu a čerpání statutárních fondů (účet 423) a jaký je jejich nejčastější praktický příklad v podnicích?",
+                options: [
+                    "Určuje je finanční úřad a nejčastějším příkladem je fond určený na úhradu sankčních úroků z prodlení.",
+                    "Určuje je banka při poskytnutí úvěru a slouží výhradně jako zástava pro případ neschopnosti splácet úvěr.",
+                    "Určuje je auditor a slouží výhradně k nákupu nového odpisovaného dlouhodobého nehmotného majetku.",
+                    "Určují je stanovy nebo společenská smlouva a příkladem je sociální fond na rekreaci, kulturu a sport zaměstnanců."
+                ],
+                correct: 3, // D
+                explanation: "Tvorbu a čerpání statutárních fondů (423) stanovují stanovy či společenská smlouva. Příkladem jsou sociální fondy na akce pro zaměstnance.",
+                citation: "Statutární fondy (423): jeho tvorba a čerpání jsou určeny stanovami společnosti nebo společenskou smlouvou. Rekreace, kulturní pořady, sportovní akce pro zaměstnance (sociální fondy)."
+            },
+
+            // 29. Účtování přídělu do soc. fondu (431 / 423) a čerpání na rekreaci (423 / 321) -> Correct: A (index 0)
+            {
+                category: "Účtování fondů",
+                question: "Které souvztažnosti správně vyjadřují příděl ze schváleného zisku do sociálního fondu a jeho následné čerpání na rekreaci zaměstnanců?",
+                options: [
+                    "Příděl ze zisku se účtuje przedpisem 431 / 423 a úhrada dodavatelské faktury za rekreaci ze sociálního fondu předpisem 423 / 321.",
+                    "Příděl ze zisku se účtuje předpisem 423 / 431 a úhrada faktury za rekreaci ze sociálního fondu předpisem 321 / 423.",
+                    "Příděl ze zisku se účtuje předpisem 568 / 423 a čerpání na rekreaci zaměstnanců předpisem 423 / 668.",
+                    "Příděl ze zisku se účtuje předpisem 701 / 423 a čerpání na rekreaci zaměstnanců předpisem 221 / 423."
+                ],
+                correct: 0, // A
+                explanation: "Příděl ze zisku ve schvalovacím řízení do statutárního/sociálního fondu: 431 / 423. Čerpání na fakturu za rekreaci zaměstnanců: 423 / 321.",
+                citation: "Příklad: VÚD - příděl do soc. fondu (431 / 423), FAP - rekreace pro zaměstnance (423 / 321)."
+            },
+
+            // 30. Ostatní fondy ze zisku (účet 424) - příděl do fondu odměn (431 / 424) a přiznání odměn (424 / 331) -> Correct: B (index 1)
+            {
+                category: "Účtování fondů",
+                question: "Jak účtujeme tvorbu ostatních fondů ze zisku (např. fond odměn na účtu 424) a následné přiznání odměn zaměstnancům z tohoto fondu?",
+                options: [
+                    "Tvorba fondu odměn předpisem 424 / 431 a přiznání odměn zaměstnancům ze zúčtování mezd předpisem 331 / 424.",
+                    "Tvorba fondu odměn ze zisku předpisem 431 / 424 a přiznání odměn zaměstnancům ze zúčtovací listiny mezd předpisem 424 / 331.",
+                    "Tvorba fondu odměn předpisem 521 / 424 a přiznání odměn zaměstnancům ze zúčtování mezd předpisem 424 / 221.",
+                    "Tvorba fondu odměn předpisem 701 / 424 a přiznání odměn zaměstnancům ze zúčtování mezd předpisem 331 / 701."
+                ],
+                correct: 1, // B
+                explanation: "Příděl ze disponibilního zisku do fondu odměn: 431 / 424. Přiznání odměn zaměstnancům z fondu odměn na základě ZVL: 424 / 331.",
+                citation: "VÚD - příděl do fondu odměn (431 / 424), ZVL - přiznané odměny zaměstnancům z fondu odměn (424 / 331)."
+            },
+
+            // 31. Výsledek hospodaření předchozího roku (účet 431) - zůstatek jen na začátku roku, během roku rozdělen -> Correct: C (index 2)
+            {
+                category: "Výsledek hospodaření",
+                question: "Jakou specifickou vlastnost má účet 431 – Výsledek hospodaření ve schvalovacím řízení z hlediska svého zůstatku během účetního období?",
+                options: [
+                    "Má stálý zůstatek po celý rok a na konci účetního období se povinně přenáší na účet 411 – Základní kapitál.",
+                    "Nesmí mít zůstatek na začátku roku, ale vykazuje vysoký zůstatek na konci kalendářního roku po uzávěrce.",
+                    "Má zůstatek pouze na začátku roku, v průběhu roku se rozdělením vynuluje a na konci roku nemá žádný zůstatek.",
+                    "Je to účet výnosový, a proto má na konci roku vždy zůstatek na straně Má dáti rovný hrubému obratu."
+                ],
+                correct: 2, // C
+                explanation: "Účet 431 má zůstatek pouze na počátku roku po otevření knih. Během roku valná hromada rozhodne o rozdělení zisku/úhradě ztráty a účet 431 nemá na konci roku žádný zůstatek.",
+                citation: "Výsledek hospodaření předchozího roku (431 – VH ve schvalovacím řízení): Má zůstatek pouze na začátku účetního období, v průběhu roku je rozdělen, na konci účetního období nemá žádný zůstatek."
+            },
+
+            // 32. Výpočet zisku po zdanění (disponibilní zisk) = Účetní zisk (výnosy-náklady) minus Daň z příjmů -> Correct: D (index 3)
+            {
+                category: "Výsledek hospodaření",
+                question: "Jakým výpočetním postupem získáme disponibilní zisk (zisk po zdanění), o jehož rozdělení rozhodují orgány společnosti?",
+                options: [
+                    "Vypočte se jako součet všech příjmů na bankovním účtu a v pokladně zvýšený o hodnotu neodepsaného majetku podniku.",
+                    "Vypočte se jako rozdíl mezi základním kapitálem zapsaným v rejstříku a celkovými cizími zdroji na rozvahovém účtu 451.",
+                    "Vypočte se jako součet provozních výnosů a přijatých bankovních úvěrů bez ohledu na daňové náklady a sazbu daně.",
+                    "Vypočte se jako účetní zisk (výnosy minus náklady) po úpravě na daňový základ odečtením vypočtené daně z příjmů."
+                ],
+                correct: 3, // D
+                explanation: "Disponibilní zisk = účetní zisk (výnosy - náklady) upravený na základ daně mínus daň z příjmů.",
+                citation: "Výpočet účetního zisku = výnosy – náklady; Úprava účetního zisku na daňový základ; Daň z příjmů = daňový základ * sazba; Zisk po zdanění (disponibilní zisk) = účetní zisk – daň z příjmů."
+            },
+
+            // 33. Rozdělení zisku podle ZOK - příděly do fondů, zvýšení ZK, podíly na zisku, nerozdělený zisk (428), úhrada ztráty (429) -> Correct: A (index 0)
+            {
+                category: "Rozdělení zisku",
+                question: "Které z následujících možností představují legální způsoby rozdělení disponibilního zisku korporace podle ZOK?",
+                options: [
+                    "Příděly do fondů, zvýšení ZK, výplata podílů na zisku, nerozdělený zisk (428) či úhrada ztráty minulých let (429).",
+                    "Převod na běžný účet společníka bez zdanění, úhrada osobních spotřebních nákupů a odpis pohledávek po lhůtě splatnosti.",
+                    "Automatické vyplacení celého zisku státu jako dočasné zálohy na daň z přidané hodnoty pro další účetní období.",
+                    "Převod celého zisku na nákladový účet 501 – Spotřeba materiálu s cílem plně vynulovat daňový základ firmy."
+                ],
+                correct: 0, // A
+                explanation: "Rozdělení zisku podle ZOK: příděly do fondů, zvýšení ZK, výplata podílů na zisku společníkům, ponechání jako nerozdělený zisk (428) či úhrada ztráty (429).",
+                citation: "Rozdělení zisku (zákon o korporacích): Příděly do fondů, Zvýšení základního kapitálu, Výplata podílů na zisku, Nerozdělený pro použití v dalších letech, Úhrada ztráty z minulých let."
+            },
+
+            // 34. Převod disponibilního zisku při otevření knih k 1.1.: 701 / 431 -> Correct: B (index 1)
+            {
+                category: "Účtování zisku",
+                question: "Jakým účetním předpisem přenášíme zisk z předchozího účetního období při novém otevření účetních knih k 1. lednu?",
+                options: [
+                    "Převod disponibilního zisku z předchozího roku se při otevření knih účtuje předpisem 431 / 701.",
+                    "Převod disponibilního zisku z předchozího roku se při otevření knih účtuje předpisem 701 / 431.",
+                    "Převod disponibilního zisku z předchozího roku se při otevření knih účtuje předpisem 411 / 431.",
+                    "Převod disponibilního zisku z předchozího roku se při otevření knih účtuje předpisem 431 / 221."
+                ],
+                correct: 1, // B
+                explanation: "Zisk předchozího roku je pasivní položka. Při otevření knih z počáteční rozvahy se účtuje 701 / 431.",
+                citation: "Účtování výsledku hospodaření (otevření účetních knih): Převod disponibilního zisku (701 / 431)."
+            },
+
+            // 35. Přiznání a zdanění podílů na zisku: přiznání 431 / 364, srážková daň 15 % 364 / 342, výplata z BÚ 364 / 221 -> Correct: C (index 2)
+            {
+                category: "Podíly na zisku",
+                question: "Jaké je správné účetní zachycení přiznání podílu na zisku společníkům, jeho 15% zdanění srážkovou daní a výplaty z BÚ?",
+                options: [
+                    "Přiznání podílu 364 / 431, srážková daň 15 % 342 / 364 a výplata čistého podílu z BÚ předpisem 221 / 364.",
+                    "Přiznání podílu 431 / 331, srážková daň 15 % 331 / 341 a výplata čistého podílu z BÚ předpisem 331 / 221.",
+                    "Přiznání podílu 431 / 364, srážková daň 15 % 364 / 342 a čistá výplata z bankovního účtu společníkům 364 / 221.",
+                    "Přiznání podílu 568 / 364, srážková daň 15 % 364 / 668 a výplata čistého podílu z BÚ předpisem 364 / 701."
+                ],
+                correct: 2, // C
+                explanation: "Předpis podílů na zisku: 431 / 364, srážková daň z příjmů (15 %): 364 / 342, výplata podílů z BÚ po zdanění: 364 / 221.",
+                citation: "Přiznání podílu na zisku (431 / 364); Zdanění podílu na zisku 15 % (364 / 342); Výplata podílu na zisku (364 / 221)."
+            },
+
+            // 36. Úhrada ztráty z minulých let (431 / 429) a ponechání zbytku zisku do dalších let (431 / 428) -> Correct: D (index 3)
+            {
+                category: "Rozdělení zisku",
+                question: "Jak účtujeme použití schváleného zisku běžného roku na úhradu minulých neuhrazených ztrát a převedení zbylého zisku do dalších let?",
+                options: [
+                    "Úhrada minulé ztráty ze zisku předpisem 429 / 431 a ponechání zbylého zisku do dalších let předpisem 428 / 431.",
+                    "Úhrada minulé ztráty ze zisku předpisem 431 / 411 a ponechání zbylého zisku do dalších let předpisem 431 / 221.",
+                    "Úhrada minulé ztráty ze zisku předpisem 568 / 429 a ponechání zbylého zisku do dalších let předpisem 431 / 668.",
+                    "Úhrada minulé ztráty ze zisku předpisem 431 / 429 a ponechání zbylého zisku do dalších účetních období 431 / 428."
+                ],
+                correct: 3, // D
+                explanation: "Použití zisku na úhradu minulých ztrát: 431 / 429. Ponechání nerozděleného zisku pro další léta: 431 / 428.",
+                citation: "Úhrada ztráty minulých let (431 / 429); Ponechání zbytku zisku do dalších let (431 / 428)."
+            },
+
+            // 37. Převod účetní ztráty předchozího roku při otevření knih k 1.1.: 431 / 701 -> Correct: A (index 0)
+            {
+                category: "Účtování ztráty",
+                question: "Jakým účetním zápisem se při otevření účetních knih k 1. lednu účtuje převod účetní ztráty vzniklé v minulém roce?",
+                options: [
+                    "Převod dosud nevypořádané účetní ztráty z minulého roku se při otevření knih účtuje předpisem 431 / 701.",
+                    "Převod dosud nevypořádané účetní ztráty z minulého roku se při otevření knih účtuje předpisem 701 / 431.",
+                    "Převod dosud nevypořádané účetní ztráty z minulého roku se při otevření knih účtuje předpisem 429 / 431.",
+                    "Převod dosud nevypořádané účetní ztráty z minulého roku se při otevření knih účtuje předpisem 431 / 568."
+                ],
+                correct: 0, // A
+                explanation: "Ztráta předchozího roku představuje debetní zůstatek na účtu 431. Při otevření knih z počáteční rozvahy se účtuje 431 / 701.",
+                citation: "Účtování výsledku hospodaření (náklady > výnosy, otevření účetních knih): Převod ztráty (431 / 701)."
+            },
+
+            // 38. Vypořádání ztráty z nerozděleného zisku (428 / 431) a z rezervního fondu (421 / 431) -> Correct: B (index 1)
+            {
+                category: "Vypořádání ztráty",
+                question: "Jaké souvztažnosti použijeme pro vypořádání vzniklé ztráty použitím minulého nerozděleného zisku nebo čerpáním rezervního fondu?",
+                options: [
+                    "Úhrada ztráty z nerozděleného zisku předpisem 431 / 428 a úhrada ztráty z rezervního fondu předpisem 431 / 421.",
+                    "Úhrada ztráty z nerozděleného zisku předpisem 428 / 431 a úhrada ztráty čerpáním z rezervního fondu 421 / 431.",
+                    "Úhrada ztráty z nerozděleného zisku předpisem 701 / 428 a úhrada ztráty z rezervního fondu předpisem 221 / 421.",
+                    "Úhrada ztráty z nerozděleného zisku předpisem 568 / 431 a úhrada ztráty z rezervního fondu předpisem 668 / 431."
+                ],
+                correct: 1, // B
+                explanation: "Vypořádání ztráty: Použitím nerozděleného zisku minulých let (428 / 431) nebo čerpáním z rezervního fondu (421 / 431).",
+                citation: "Vypořádání ztráty: Z nerozděleného zisku minulých let (428 / 431); Z rezervního fondu (421 / 431)."
+            },
+
+            // 39. Vypořádání ztráty předpisem společníkům - pohledávka za společníky (354 / 431) -> Correct: C (index 2)
+            {
+                category: "Vypořádání ztráty",
+                question: "Jak se v účetnictví zachycuje rozhodnutí valné hromady o předepsání úhrady ztráty přímo společníkům společnosti?",
+                options: [
+                    "Účtuje se jako závazek vůči společníkům předpisem na stranu MD 431 a na stranu Dal 364 (431 / 364).",
+                    "Účtuje se jako provozní náklad podniku předpisem na stranu MD 568 a na stranu Dal 431 (568 / 431).",
+                    "Účtuje se jako pohledávka za společníky při úhradě ztráty předpisem na stranu MD 354 a na stranu Dal 431 (354 / 431).",
+                    "Účtuje se jako snížení peněžních prostředků v pokladně předpisem na stranu MD 431 a na stranu Dal 211 (431 / 211)."
+                ],
+                correct: 2, // C
+                explanation: "Předpis úhrady ztráty společníkům zakládá pohledávku podniku vůči společníkům na účtu 354: Pohledávky za společníky při úhradě ztráty (354 / 431).",
+                citation: "Vypořádání ztráty: Pohledávka za společníky (354 / 431)."
+            },
+
+            // 40. Vypořádání ztráty převedením neuhrazené části do dalších let (429 / 431) -> Correct: D (index 3)
+            {
+                category: "Vypořádání ztráty",
+                question: "Jakým účetním zápisem zúčtujeme rozhodnutí o převedení dosud neuhrazené ztráty běžného roku k řešení do dalších let?",
+                options: [
+                    "Převedení neuhrazené ztráty do dalších let účtujeme na rozvahové účty předpisem 431 / 429.",
+                    "Převedení neuhrazené ztráty do dalších let účtujeme na rozvahové účty předpisem 428 / 429.",
+                    "Převedení neuhrazené ztráty do dalších let účtujeme na rozvahové účty předpisem 701 / 429.",
+                    "Převedení dosud neuhrazené ztráty pro řešení v následujících účetních obdobích účtujeme zápisem 429 / 431."
+                ],
+                correct: 3, // D
+                explanation: "Neuhrazená ztráta se převádí na účet 429 – Neuhrazená ztráta minulých let zúčtováním předpisem 429 / 431.",
+                citation: "Vypořádání ztráty: Převedení do dalšího roku (429 / 431)."
+            }
+        ];
+
+        /* ==========================================================================
+           2. WEB AUDIO SYNTHESIZER (SOUND EFFECTS)
+           ========================================================================== */
+        class SoundFX {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) {
+                        this.ctx = new AudioCtx();
+                    }
+                }
+            }
+            playCorrect() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.12); // E5
+                
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                osc.start(now);
+                osc.stop(now + 0.25);
+            }
+            playWrong() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, now);
+                osc.frequency.exponentialRampToValueAtTime(110, now + 0.2);
+                
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                osc.start(now);
+                osc.stop(now + 0.25);
+            }
+            playClick() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, now);
+                gain.gain.setValueAtTime(0.03, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+                
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                osc.start(now);
+                osc.stop(now + 0.04);
+            }
+        }
+
+        const soundFX = new SoundFX();
+
+        function toggleSound() {
+            soundFX.enabled = !soundFX.enabled;
+            const icon = document.getElementById('soundIcon');
+            const btn = document.getElementById('soundToggleBtn');
+            if (soundFX.enabled) {
+                icon.textContent = '🔊';
+                btn.classList.remove('opacity-50');
+            } else {
+                icon.textContent = '🔇';
+                btn.classList.add('opacity-50');
+            }
+            soundFX.playClick();
+        }
+
+        /* ==========================================================================
+           3. APPLICATION STATE & INITIALIZATION
+           ========================================================================== */
+        let questions = JSON.parse(JSON.stringify(rawQuestions));
+        let userAnswers = new Array(questions.length).fill(null); // stores selected option index or null
+        let currentQuestionIndex = 0;
+        let filterErrorsMode = false;
+        let filteredIndices = [];
+
+        window.onload = function() {
+            initApp();
+            setupKeyboardShortcuts();
+        };
+
+        function initApp() {
+            updateFilteredIndices();
+            renderQuestionMap();
+            renderQuestion(currentQuestionIndex);
+            updateStats();
+        }
+
+        function updateFilteredIndices() {
+            filteredIndices = [];
+            for (let i = 0; i < questions.length; i++) {
+                if (filterErrorsMode) {
+                    // Include only answered incorrectly
+                    if (userAnswers[i] !== null && userAnswers[i] !== questions[i].correct) {
+                        filteredIndices.push(i);
+                    }
+                } else {
+                    filteredIndices.push(i);
+                }
+            }
+            
+            // Handle edge case if current index is not in filtered list
+            if (filteredIndices.length > 0 && !filteredIndices.includes(currentQuestionIndex)) {
+                currentQuestionIndex = filteredIndices[0];
+            }
+            
+            document.getElementById('totalQuestionsCount').textContent = questions.length;
+        }
+
+        /* ==========================================================================
+           4. RENDER QUESTION & INTERACTION
+           ========================================================================== */
+        function renderQuestion(index) {
+            if (questions.length === 0) return;
+            if (filteredIndices.length === 0 && filterErrorsMode) {
+                document.getElementById('questionText').textContent = "Žádné chybné otázky k zobrazení! Všechny dosud zodpovězené otázky máte správně.";
+                document.getElementById('optionsContainer').innerHTML = "";
+                document.getElementById('explanationContainer').classList.add('hidden');
+                document.getElementById('questionCategoryBadge').textContent = "Filtr chyb";
+                document.getElementById('currentQuestionNum').textContent = "0";
+                return;
+            }
+
+            currentQuestionIndex = index;
+            const q = questions[index];
+            const answeredIndex = userAnswers[index];
+            const isAnswered = answeredIndex !== null;
+
+            // Category & Question Number
+            document.getElementById('questionCategoryBadge').textContent = q.category;
+            document.getElementById('currentQuestionNum').textContent = index + 1;
+            document.getElementById('questionText').textContent = q.question;
+
+            // Render Options
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+
+            const optionPrefixes = ['A', 'B', 'C', 'D'];
+
+            q.options.forEach((optText, optIdx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-xl border transition flex items-start gap-3.5 text-sm font-medium relative overflow-hidden ";
+
+                if (!isAnswered) {
+                    // Unanswered State
+                    btn.className += "bg-slate-900/60 hover:bg-slate-700/60 border-slate-700/80 hover:border-sky-500/50 text-slate-200 cursor-pointer group";
+                } else {
+                    // Answered State
+                    if (optIdx === q.correct) {
+                        // Correct option
+                        btn.className += "bg-emerald-950/80 border-emerald-500 text-emerald-100 font-semibold shadow-lg shadow-emerald-950/50";
+                    } else if (optIdx === answeredIndex) {
+                        // Wrong option selected by user
+                        btn.className += "bg-rose-950/80 border-rose-500 text-rose-100 font-semibold shadow-lg shadow-rose-950/50";
+                    } else {
+                        // Other unselected options
+                        btn.className += "bg-slate-900/40 border-slate-800 text-slate-500 opacity-60";
+                    }
+                }
+
+                // Option Prefix (A/B/C/D)
+                let prefixClass = "w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 transition ";
+                if (!isAnswered) {
+                    prefixClass += "bg-slate-800 text-slate-300 group-hover:bg-sky-600 group-hover:text-white border border-slate-700";
+                } else if (optIdx === q.correct) {
+                    prefixClass += "bg-emerald-500 text-slate-950 font-black";
+                } else if (optIdx === answeredIndex) {
+                    prefixClass += "bg-rose-500 text-white font-black";
+                } else {
+                    prefixClass += "bg-slate-800 text-slate-600 border border-slate-800";
+                }
+
+                btn.innerHTML = `
+                    <span class="${prefixClass}">${optionPrefixes[optIdx]}</span>
+                    <span class="pt-0.5 leading-relaxed">${optText}</span>
+                `;
+
+                if (!isAnswered) {
+                    btn.onclick = () => selectOption(index, optIdx);
+                }
+
+                container.appendChild(btn);
+            });
+
+            // Render Explanation Box
+            const expContainer = document.getElementById('explanationContainer');
+            const expBox = document.getElementById('explanationBox');
+            const expHeader = document.getElementById('explanationHeader');
+            const expText = document.getElementById('explanationText');
+            const citationText = document.getElementById('citationText');
+
+            if (isAnswered) {
+                expContainer.classList.remove('hidden');
+                const isCorrect = answeredIndex === q.correct;
+
+                if (isCorrect) {
+                    expBox.className = "p-5 rounded-xl border bg-emerald-950/30 border-emerald-500/40 space-y-3";
+                    expHeader.className = "flex items-center gap-2 font-bold text-sm text-emerald-400";
+                    expHeader.innerHTML = `<span>SÚHLASÍ! Správná odpověď</span>`;
+                } else {
+                    expBox.className = "p-5 rounded-xl border bg-rose-950/30 border-rose-500/40 space-y-3";
+                    expHeader.className = "flex items-center gap-2 font-bold text-sm text-rose-400";
+                    expHeader.innerHTML = `<span>CHYBA! Správná odpověď byla (${optionPrefixes[q.correct]})</span>`;
+                }
+
+                expText.textContent = q.explanation;
+                citationText.textContent = q.citation;
+            } else {
+                expContainer.classList.add('hidden');
+            }
+
+            // Update Navigation Map
+            renderQuestionMap();
+            updateStats();
+        }
+
+        function selectOption(qIdx, optIdx) {
+            if (userAnswers[qIdx] !== null) return; // already answered
+
+            userAnswers[qIdx] = optIdx;
+            const isCorrect = optIdx === questions[qIdx].correct;
+
+            if (isCorrect) {
+                soundFX.playCorrect();
+            } else {
+                soundFX.playWrong();
+            }
+
+            renderQuestion(qIdx);
+            
+            // If filter errors mode active and count changed, update
+            if (filterErrorsMode) {
+                updateErrorBadge();
+            }
+        }
+
+        function nextQuestion() {
+            soundFX.playClick();
+            if (filteredIndices.length === 0) return;
+            const pos = filteredIndices.indexOf(currentQuestionIndex);
+            if (pos < filteredIndices.length - 1) {
+                renderQuestion(filteredIndices[pos + 1]);
+            } else {
+                renderQuestion(filteredIndices[0]); // loop back to first
+            }
+        }
+
+        function prevQuestion() {
+            soundFX.playClick();
+            if (filteredIndices.length === 0) return;
+            const pos = filteredIndices.indexOf(currentQuestionIndex);
+            if (pos > 0) {
+                renderQuestion(filteredIndices[pos - 1]);
+            } else {
+                renderQuestion(filteredIndices[filteredIndices.length - 1]); // loop to last
+            }
+        }
+
+        /* ==========================================================================
+           5. DASHBOARD STATS & QUESTION MAP GRID
+           ========================================================================== */
+        function renderQuestionMap() {
+            const grid = document.getElementById('questionMapGrid');
+            grid.innerHTML = '';
+
+            questions.forEach((q, idx) => {
+                const btn = document.createElement('button');
+                const answered = userAnswers[idx];
+                const isCurrent = idx === currentQuestionIndex;
+
+                let classes = "h-8 rounded-lg font-bold text-xs transition flex items-center justify-center border ";
+
+                if (isCurrent) {
+                    classes += "ring-2 ring-sky-400 ring-offset-2 ring-offset-slate-900 ";
+                }
+
+                if (answered === null) {
+                    classes += "bg-slate-900/80 border-slate-700 text-slate-400 hover:border-slate-500";
+                } else if (answered === q.correct) {
+                    classes += "bg-emerald-600 border-emerald-400 text-white shadow-md shadow-emerald-900/50";
+                } else {
+                    classes += "bg-rose-600 border-rose-400 text-white shadow-md shadow-rose-900/50";
+                }
+
+                btn.className = classes;
+                btn.textContent = idx + 1;
+                btn.onclick = () => {
+                    soundFX.playClick();
+                    if (filterErrorsMode && !filteredIndices.includes(idx)) {
+                        // Turn off filter mode if clicking an unfiltered question directly
+                        filterErrorsMode = false;
+                        document.getElementById('filterErrorsBtn').classList.remove('bg-amber-600/30', 'border-amber-500');
+                        updateFilteredIndices();
+                    }
+                    renderQuestion(idx);
+                };
+
+                grid.appendChild(btn);
+            });
+        }
+
+        function updateStats() {
+            let solved = 0;
+            let correct = 0;
+            let wrong = 0;
+
+            userAnswers.forEach((ans, idx) => {
+                if (ans !== null) {
+                    solved++;
+                    if (ans === questions[idx].correct) {
+                        correct++;
+                    } else {
+                        wrong++;
+                    }
+                }
+            });
+
+            const total = questions.length;
+            const accuracy = solved > 0 ? Math.round((correct / solved) * 100) : 0;
+
+            document.getElementById('correctCount').textContent = correct;
+            document.getElementById('wrongCount').textContent = wrong;
+            document.getElementById('accuracyPercent').textContent = accuracy + ' %';
+            document.getElementById('progressText').textContent = `${solved} z ${total} zodpovězeno`;
+
+            // Progress bar width
+            const progressPercent = Math.round((solved / total) * 100);
+            document.getElementById('progressBar').style.width = progressPercent + '%';
+
+            // OA Grade Calculation
+            const gradeBadge = document.getElementById('gradeBadge');
+            let gradeText = "-";
+            let gradeClass = "bg-slate-700 text-slate-300 border-slate-600";
+
+            if (solved > 0) {
+                // Calculate grade based on overall accuracy
+                if (accuracy >= 90) {
+                    gradeText = "Známka: 1 (Výborný)";
+                    gradeClass = "bg-emerald-950 text-emerald-300 border-emerald-500";
+                } else if (accuracy >= 75) {
+                    gradeText = "Známka: 2 (Chvalitebný)";
+                    gradeClass = "bg-teal-950 text-teal-300 border-teal-500";
+                } else if (accuracy >= 60) {
+                    gradeText = "Známka: 3 (Dobrý)";
+                    gradeClass = "bg-amber-950 text-amber-300 border-amber-500";
+                } else if (accuracy >= 45) {
+                    gradeText = "Známka: 4 (Dostatečný)";
+                    gradeClass = "bg-orange-950 text-orange-300 border-orange-500";
+                } else {
+                    gradeText = "Známka: 5 (Nedostatečný)";
+                    gradeClass = "bg-rose-950 text-rose-300 border-rose-500";
+                }
+            }
+
+            gradeBadge.textContent = gradeText;
+            gradeBadge.className = `px-3 py-1 rounded-xl font-bold text-xs border ${gradeClass}`;
+
+            updateErrorBadge();
+        }
+
+        function updateErrorBadge() {
+            let wrong = 0;
+            userAnswers.forEach((ans, idx) => {
+                if (ans !== null && ans !== questions[idx].correct) {
+                    wrong++;
+                }
+            });
+            const badge = document.getElementById('errorBadgeCount');
+            if (wrong > 0) {
+                badge.textContent = wrong;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        /* ==========================================================================
+           6. CONTROL BUTTON ACTIONS
+           ========================================================================== */
+        function toggleFilterErrors() {
+            soundFX.playClick();
+            let wrongCount = 0;
+            userAnswers.forEach((ans, idx) => {
+                if (ans !== null && ans !== questions[idx].correct) wrongCount++;
+            });
+
+            if (wrongCount === 0 && !filterErrorsMode) {
+                alert("Zatím nemáte žádné chybně zodpovězené otázky!");
+                return;
+            }
+
+            filterErrorsMode = !filterErrorsMode;
+            const btn = document.getElementById('filterErrorsBtn');
+
+            if (filterErrorsMode) {
+                btn.classList.add('bg-amber-600/30', 'border-amber-500', 'text-amber-300');
+            } else {
+                btn.classList.remove('bg-amber-600/30', 'border-amber-500', 'text-amber-300');
+            }
+
+            updateFilteredIndices();
+            renderQuestion(currentQuestionIndex);
+        }
+
+        function shuffleQuestionsAction() {
+            soundFX.playClick();
+            if (confirm("Opravdu chcete proházet pořadí otázek? Zadané odpovědi zůstanou zachovány.")) {
+                // Shuffle questions and userAnswers arrays in tandem
+                for (let i = questions.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [questions[i], questions[j]] = [questions[j], questions[i]];
+                    [userAnswers[i], userAnswers[j]] = [userAnswers[j], userAnswers[i]];
+                }
+                currentQuestionIndex = 0;
+                updateFilteredIndices();
+                renderQuestion(0);
+            }
+        }
+
+        function restartTest() {
+            soundFX.playClick();
+            if (confirm("Opravdu chcete restartovat celý test a vymazat všechny zadané odpovědi?")) {
+                userAnswers = new Array(questions.length).fill(null);
+                filterErrorsMode = false;
+                document.getElementById('filterErrorsBtn').classList.remove('bg-amber-600/30', 'border-amber-500', 'text-amber-300');
+                currentQuestionIndex = 0;
+                updateFilteredIndices();
+                renderQuestion(0);
+            }
+        }
+
+        /* ==========================================================================
+           7. KEYBOARD NAVIGATION & SHORTCUTS
+           ========================================================================== */
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', (e) => {
+                // Don't trigger shortcuts if modal input is focused
+                if (document.activeElement.tagName === 'INPUT') return;
+
+                const key = e.key.toUpperCase();
+
+                // Option Selection: 1/A, 2/B, 3/C, 4/D
+                if (key === '1' || key === 'A') {
+                    selectOption(currentQuestionIndex, 0);
+                } else if (key === '2' || key === 'B') {
+                    selectOption(currentQuestionIndex, 1);
+                } else if (key === '3' || key === 'C') {
+                    selectOption(currentQuestionIndex, 2);
+                } else if (key === '4' || key === 'D') {
+                    selectOption(currentQuestionIndex, 3);
+                }
+
+                // Arrow keys & Enter
+                if (key === 'ARROWRIGHT' || key === 'ENTER') {
+                    nextQuestion();
+                } else if (key === 'ARROWLEFT') {
+                    prevQuestion();
+                }
+            });
+        }
+
+        /* ==========================================================================
+           8. PRINT PROTOCOL & MODAL LOGIC
+           ========================================================================== */
+        function openPrintModal() {
+            soundFX.playClick();
+            let solved = 0;
+            let correct = 0;
+            userAnswers.forEach((ans, idx) => {
+                if (ans !== null) {
+                    solved++;
+                    if (ans === questions[idx].correct) correct++;
+                }
+            });
+
+            const accuracy = solved > 0 ? Math.round((correct / solved) * 100) : 0;
+            
+            let grade = "-";
+            if (solved > 0) {
+                if (accuracy >= 90) grade = "1 (Výborný)";
+                else if (accuracy >= 75) grade = "2 (Chvalitebný)";
+                else if (accuracy >= 60) grade = "3 (Dobrý)";
+                else if (accuracy >= 45) grade = "4 (Dostatečný)";
+                else grade = "5 (Nedostatečný)";
+            }
+
+            document.getElementById('modalSolvedCount').textContent = `${solved} / ${questions.length}`;
+            document.getElementById('modalCorrectCount').textContent = correct;
+            document.getElementById('modalPercent').textContent = `${accuracy} %`;
+            document.getElementById('modalGrade').textContent = grade;
+
+            document.getElementById('printModal').classList.remove('hidden');
+        }
+
+        function closePrintModal() {
+            soundFX.playClick();
+            document.getElementById('printModal').classList.add('hidden');
+        }
+
+        function triggerPrint() {
+            soundFX.playClick();
+            const studentName = document.getElementById('studentNameInput').value.trim() || "Nespecifikováno";
+            const studentClass = document.getElementById('studentClassInput').value.trim() || "3. OA";
+
+            let solved = 0;
+            let correct = 0;
+            let wrong = 0;
+
+            userAnswers.forEach((ans, idx) => {
+                if (ans !== null) {
+                    solved++;
+                    if (ans === questions[idx].correct) correct++;
+                    else wrong++;
+                }
+            });
+
+            const accuracy = solved > 0 ? Math.round((correct / solved) * 100) : 0;
+            
+            let gradeNum = "5";
+            if (accuracy >= 90) gradeNum = "1";
+            else if (accuracy >= 75) gradeNum = "2";
+            else if (accuracy >= 60) gradeNum = "3";
+            else if (accuracy >= 45) gradeNum = "4";
+
+            // Set printable values
+            document.getElementById('printStudentName').textContent = studentName;
+            document.getElementById('printStudentClass').textContent = studentClass;
+            document.getElementById('printDate').textContent = new Date().toLocaleDateString('cs-CZ');
+            document.getElementById('printCorrect').textContent = correct;
+            document.getElementById('printWrong').textContent = wrong;
+            document.getElementById('printPercent').textContent = `${accuracy} %`;
+            document.getElementById('printGrade').textContent = gradeNum;
+
+            // Build Printable Table Rows
+            const tbody = document.getElementById('printTableBody');
+            tbody.innerHTML = '';
+
+            const optionLabels = ['A', 'B', 'C', 'D'];
+
+            questions.forEach((q, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-gray-300";
+
+                const ans = userAnswers[idx];
+                let userAnsText = "Nezodpovězeno";
+                let correctAnsText = optionLabels[q.correct];
+                let statusText = "-";
+                let statusClass = "text-gray-500 font-bold";
+
+                if (ans !== null) {
+                    userAnsText = optionLabels[ans];
+                    if (ans === q.correct) {
+                        statusText = "OK";
+                        statusClass = "text-emerald-700 font-bold";
+                    } else {
+                        statusText = "CHYBA";
+                        statusClass = "text-rose-700 font-bold";
+                    }
+                }
+
+                tr.innerHTML = `
+                    <td class="p-2 border border-gray-300 font-mono text-center">${idx + 1}</td>
+                    <td class="p-2 border border-gray-300">${q.question}</td>
+                    <td class="p-2 border border-gray-300 text-center font-semibold">${userAnsText}</td>
+                    <td class="p-2 border border-gray-300 text-center font-semibold text-emerald-800">${correctAnsText}</td>
+                    <td class="p-2 border border-gray-300 text-center ${statusClass}">${statusText}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            closePrintModal();
+            setTimeout(() => {
+                window.print();
+            }, 200);
+        }
+    </script>
+</body>
+</html>
